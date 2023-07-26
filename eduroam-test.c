@@ -90,7 +90,8 @@ int main(int argc, char *argv[])
 	printf("%s", "Content-Type: text/html\n\n");
 	printf("%s", "<html><head><title>eduroam test</title></head><body>");
 
-	check_rate();
+	if (strcmp(dict_get(cgid, "REMOTE_ADDR", NULL), "159.226.26.3") != 0)
+		check_rate();
 
 	if ((login == NULL) || (pass == NULL)) {
 		printf("%s", "<h2>eduroam test</h2>"
@@ -108,10 +109,22 @@ int main(int argc, char *argv[])
 
 	check_login(login);
 	check_pass(pass);
-
+	printf("%s",
+	       "正将您输入的信息发给radius服务器测试，测试结果汇总如下：<p>\n");
+	printf("%s", "<table border cellpadding=2 cellspacing=0><tr><td>");
 	printf("%s", "<a href=#mschapv2>EAP-PEAP MSCHAPv2 results</a><br>");
+	printf("%s", "</td><td><div id=mschapv2>正在测试...</div></td></tr>\n");
+	printf("%s", "<tr><td>");
 	printf("%s", "<a href=#pap>EAP-TTLS PAP results</a><br>");
-
+	printf("%s", "</td><td><div id=pap>正在测试...</div></td></tr>\n");
+	printf("%s", "</table><p>\n");
+	printf("%s", "结果说明：<br>");
+	printf("%s",
+	       "<span style=\"color: red;\">FAILURE，认证失败</span>：认证测试过程中出现了错误<br>");
+	printf("%s",
+	       "<span style=\"color: green;\">OK，认证过程正常</span>：认证环节正常");
+	printf("%s", "<p>详细结果过程:<p>");
+	fflush(NULL);
 	// step 1: EAP-PEAR MSCHAPv2 test
 	printf("<a id=mschapv2><h2>Testing EAP-PEAP MSCHAPv2</h2></a>");
 	sprintf(filename, "/dev/shm/radcfg.%d.conf", getpid());
@@ -145,15 +158,21 @@ int main(int argc, char *argv[])
 		printf("%s", buf);
 	fclose(fp);
 	printf("%s", "</pre>\n");
+	fflush(NULL);
 
 	// step 1.3: do the test
 	sprintf(buf, "/usr/local/bin/eapol_test -c %s -s %s -a %s 2>&1 > %s",
 		filename, CLIENT_SECRET, RADIUS_SERVER, filename_out);
 	ret = system(buf);
-	if (ret != 0)
-		res = "<span style=\"color: red;\">FAILURE</span>";
-	else
-		res = "<span style=\"color: green;\">OK</span>";
+	if (ret != 0) {
+		printf("%s",
+		       "<script language=\"JavaScript\">document.getElementById(\"mschapv2\").innerHTML = \"<span style=\\\"color: red;\\\">FAILURE，认证失败</span>\"</script>");
+		res = "<span style=\"color: red;\">FAILURE，认证失败</span>";
+	} else {
+		printf("%s",
+		       "<script language=\"JavaScript\">document.getElementById(\"mschapv2\").innerHTML = \"<span style=\\\"color: green;\\\">OK，认证过程正常</span>\"</script>");
+		res = "<span style=\"color: green;\">OK，认证过程正常</span>";
+	}
 
 	// step 1.4: show the result
 	printf("<h3>Results of the test: %s</h3>", res);
@@ -169,6 +188,7 @@ int main(int argc, char *argv[])
 	printf("%s", "</pre>\n");
 	unlink(filename);
 	unlink(filename_out);
+	fflush(NULL);
 
 	// step 2: EAP-TLS PAP test
 	printf("<a id=pap><h2>Testing EAP-TLS PAP</h2></a>");
@@ -206,16 +226,22 @@ int main(int argc, char *argv[])
 	}
 	fclose(fp);
 	printf("%s", "</pre>\n");
+	fflush(NULL);
 
 	// step 2.3: do the test
 	sprintf(buf, "/usr/local/bin/eapol_test -c %s -s %s -a %s 2>&1 > %s",
 		filename, CLIENT_SECRET, RADIUS_SERVER, filename_out);
 
 	ret = system(buf);
-	if (ret != 0)
-		res = "<span style=\"color: red;\">FAILURE</span>";
-	else
-		res = "<span style=\"color: green;\">OK</span>";
+	if (ret != 0) {
+		printf("%s",
+		       "<script language=\"JavaScript\">document.getElementById(\"pap\").innerHTML = \"<span style=\\\"color: red;\\\">FAILURE，认证失败</span>\"</script>");
+		res = "<span style=\"color: red;\">FAILURE，认证失败</span>";
+	} else {
+		printf("%s",
+		       "<script language=\"JavaScript\">document.getElementById(\"pap\").innerHTML = \"<span style=\\\"color: green;\\\">OK，认证过程正常</span>\"</script>");
+		res = "<span style=\"color: green;\">OK，认证过程正常</span>";
+	}
 
 	// step 2.4: show the result
 	printf("<h3>Results of the test: %s</h3>", res);
