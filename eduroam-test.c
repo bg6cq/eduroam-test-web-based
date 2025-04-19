@@ -184,6 +184,7 @@ int main(int argc, char *argv[])
 	fp = fopen(filename_out, "r");
 	if (fp == NULL) {
 		printf("open file %s error", filename_out);
+		unlink(filename);
 		exit(0);
 	}
 	while (fgets(buf, MAXLEN, fp))
@@ -194,8 +195,8 @@ int main(int argc, char *argv[])
 	unlink(filename_out);
 	fflush(NULL);
 
-	// step 2: EAP-TLS PAP test
-	printf("<a id=pap><h2>开始测试 EAP-TLS PAP ...</h2></a>");
+	// step 2: EAP-TTLS PAP test
+	printf("<a id=pap><h2>开始测试 EAP-TTLS PAP ...</h2></a>");
 	sprintf(filename, "/dev/shm/radcfg.%d.conf", getpid());
 	sprintf(filename_out, "/dev/shm/radtest.%d.out", getpid());
 
@@ -253,6 +254,7 @@ int main(int argc, char *argv[])
 	fp = fopen(filename_out, "r");
 	if (fp == NULL) {
 		printf("open file %s error", filename_out);
+		unlink(filename);
 		exit(0);
 	}
 	while (fgets(buf, MAXLEN, fp))
