@@ -114,22 +114,21 @@ int main(int argc, char *argv[])
 	printf("%s", "<table border cellpadding=2 cellspacing=0><tr><td>");
 	printf("%s", "认证类型</td><td>测试结果</td></tr>\n");
 	printf("%s", "<tr><td>");
-	printf("%s", "<a href=#mschapv2>EAP-PEAP MSCHAPv2</a><br>");
+	printf("%s", "<a href=#tmschapv2>EAP-PEAP MSCHAPv2</a><br>");
 	printf("%s", "</td><td><div id=mschapv2>正在测试...</div></td></tr>\n");
 	printf("%s", "<tr><td>");
-	printf("%s", "<a href=#pap>EAP-TTLS PAP</a><br>");
+	printf("%s", "<a href=#tpap>EAP-TTLS PAP</a><br>");
 	printf("%s", "</td><td><div id=pap>正在测试...</div></td></tr>\n");
 	printf("%s", "</table><p>\n");
-	printf("%s", "结果说明：<br>");
+	printf("%s", "<h2>结果说明：</h2>");
 	printf("%s",
-	       "<span style=\"color: red;\">FAILURE，认证失败</span>：认证测试过程中出现了错误<br>");
-	printf("%s",
-	       "<span style=\"color: green;\">OK，认证过程正常</span>：认证环节正常");
-	printf("%s", "<p>详细结果过程:<p>");
+	       "如果本系统测试显示 \"<span style=\"color: green;\">OK，认证过程正常</span>\"，说明eduroam账号/密码均正确。<br>");
+	printf("%s", "如果测试正常，但无法正确连接eduroam网络，建议联系当地eduroam网络服务提供商。<br>");
+	printf("%s", "<h2>详细测试过程:</h2>");
 	fflush(NULL);
 
 	// step 1: EAP-PEAR MSCHAPv2 test
-	printf("<a id=mschapv2><h2>开始测试 EAP-PEAP MSCHAPv2 ...</h2></a>");
+	printf("<a id=tmschapv2><h3>开始测试 EAP-PEAP MSCHAPv2 ...</h3></a>");
 	sprintf(filename, "/dev/shm/radcfg.%d.conf", getpid());
 	sprintf(filename_out, "/dev/shm/radtest.%d.out", getpid());
 
@@ -153,14 +152,15 @@ int main(int argc, char *argv[])
 	// step 1.2: show config file
 	printf("%s", "<h3>使用的配置文件</h3>");
 	printf("<pre>\n");
-	fp = fopen(filename, "r");
-	if (fp == NULL) {
-		printf("open file %s error", filename);
-		exit(0);
-	}
-	while (fgets(buf, MAXLEN, fp))
-		printf("%s", buf);
-	fclose(fp);
+
+	printf("network={\n"
+		"    ssid=\"eduroam\"\n"
+		"    key_mgmt=WPA-EAP\n"
+		"    eap=PEAP\n"
+		"    identity=\"%s\"\n"
+		"    anonymous_identity=\"%s\"\n"
+		"    password=\"%s\"\n"
+		"    phase2=\"autheap=MSCHAPV2\"\n" "}", login, login, "********");
 	printf("%s", "</pre>\n");
 	fflush(NULL);
 
@@ -196,7 +196,7 @@ int main(int argc, char *argv[])
 	fflush(NULL);
 
 	// step 2: EAP-TTLS PAP test
-	printf("<a id=pap><h2>开始测试 EAP-TTLS PAP ...</h2></a>");
+	printf("<a id=tpap><h3>开始测试 EAP-TTLS PAP ...</h3></a>");
 	sprintf(filename, "/dev/shm/radcfg.%d.conf", getpid());
 	sprintf(filename_out, "/dev/shm/radtest.%d.out", getpid());
 
@@ -213,23 +213,19 @@ int main(int argc, char *argv[])
 		"    identity=\"%s\"\n"
 		"    anonymous_identity=\"%s\"\n"
 		"    password=\"%s\"\n" "    phase2=\"auth=PAP\"\n" "}", login, login, pass);
-
 	fclose(fp);
 
 	// step 2.2: show config file
 	printf("%s", "<h3>使用的配置文件</h3>");
 
 	printf("<pre>\n");
-	fp = fopen(filename, "r");
-	if (fp == NULL) {
-		printf("open file %s error", filename);
-		exit(0);
-	}
-
-	while (fgets(buf, MAXLEN, fp)) {
-		printf("%s", buf);
-	}
-	fclose(fp);
+	printf("network={\n"
+		"    ssid=\"eduroam\"\n"
+		"    key_mgmt=WPA-EAP\n"
+		"    eap=TTLS\n"
+		"    identity=\"%s\"\n"
+		"    anonymous_identity=\"%s\"\n"
+		"    password=\"%s\"\n" "    phase2=\"auth=PAP\"\n" "}", login, login, "********");
 	printf("%s", "</pre>\n");
 	fflush(NULL);
 

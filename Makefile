@@ -3,7 +3,7 @@ all: eduroam-test.cgi
 eduroam-test.cgi: eduroam-test.c
 	gcc -o eduroam-test.cgi eduroam-test.c -Wall dict.c tcgi.c
 
-install: 
+install: eduroam-test.cgi
 	cp -f eduroam-test.cgi /var/www/cgi-bin/
 indent: eduroam-test.c
 	indent eduroam-test.c -nbad -bap \
