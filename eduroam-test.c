@@ -2,6 +2,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
+#include <sys/stat.h>
 #include <time.h>
 
 #include "tcgi.h"
@@ -124,6 +125,7 @@ int main(int argc, char *argv[])
 			printf("create config file error");
 			exit(0);
 		}
+		fchmod(fd, 0600);
 		fp = fdopen(fd, "w");
 	}
 	if (fp == NULL) {
@@ -161,6 +163,7 @@ int main(int argc, char *argv[])
 			printf("create output file error");
 			exit(0);
 		}
+		fchmod(fd, 0600);
 		close(fd);
 	}
 	snprintf(buf, sizeof(buf), "/usr/local/bin/eapol_test -c %s -s %s -a %s 2>&1 > %s",
@@ -197,6 +200,7 @@ int main(int argc, char *argv[])
 			printf("create config file error");
 			exit(0);
 		}
+		fchmod(fd, 0600);
 		fp = fdopen(fd, "w");
 	}
 	if (fp == NULL) {
@@ -237,6 +241,7 @@ int main(int argc, char *argv[])
 			printf("create output file error");
 			exit(0);
 		}
+		fchmod(fd, 0600);
 		close(fd);
 	}
 	snprintf(buf, sizeof(buf), "/usr/local/bin/eapol_test -c %s -s %s -a %s 2>&1 > %s",
