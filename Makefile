@@ -1,7 +1,11 @@
+#CFLAGS = -O2 -Wall -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIE -pie
+CFLAGS = -O2 -Wall -D_FORTIFY_SOURCE=2 -fPIE -pie
+LDFLAGS = -Wl,-z,relro,-z,now -Wl,-z,noexecstack
+
 all: eduroam-test.cgi
 
 eduroam-test.cgi: eduroam-test.c
-	gcc -o eduroam-test.cgi eduroam-test.c -Wall dict.c tcgi.c
+	gcc $(CFLAGS) -o eduroam-test.cgi eduroam-test.c $(LDFLAGS) dict.c tcgi.c
 
 install: eduroam-test.cgi
 	cp -f eduroam-test.cgi /var/www/cgi-bin/
