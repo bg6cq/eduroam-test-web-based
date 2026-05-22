@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <stdlib.h>
 #include <time.h>
 
 #include "tcgi.h"
@@ -114,13 +115,19 @@ int main(int argc, char *argv[])
 
 	// step 1: EAP-PEAR MSCHAPv2 test
 	printf("<a id=mschapv2><h2>Testing EAP-PEAP MSCHAPv2</h2></a>");
-	sprintf(filename, "/dev/shm/radcfg.%d.conf", getpid());
-	sprintf(filename_out, "/dev/shm/radtest.%d.out", getpid());
 
-	// step 1.1: write config file
-	fp = fopen(filename, "w");
+	// step 1.1: create and write config file
+	snprintf(filename, sizeof(filename), "/dev/shm/radcfg.XXXXXX");
+	{
+		int fd = mkstemp(filename);
+		if (fd == -1) {
+			printf("create config file error");
+			exit(0);
+		}
+		fp = fdopen(fd, "w");
+	}
 	if (fp == NULL) {
-		printf("open file %s error", filename);
+		printf("fdopen file %s error", filename);
 		exit(0);
 	}
 	fprintf(fp, "network={\n"
@@ -146,8 +153,17 @@ int main(int argc, char *argv[])
 	fclose(fp);
 	printf("%s", "</pre>\n");
 
-	// step 1.3: do the test
-	sprintf(buf, "/usr/local/bin/eapol_test -c %s -s %s -a %s 2>&1 > %s",
+	// step 1.3: create output file and do the test
+	snprintf(filename_out, sizeof(filename_out), "/dev/shm/radtest.XXXXXX");
+	{
+		int fd = mkstemp(filename_out);
+		if (fd == -1) {
+			printf("create output file error");
+			exit(0);
+		}
+		close(fd);
+	}
+	snprintf(buf, sizeof(buf), "/usr/local/bin/eapol_test -c %s -s %s -a %s 2>&1 > %s",
 		filename, CLIENT_SECRET, RADIUS_SERVER, filename_out);
 	ret = system(buf);
 	if (ret != 0)
@@ -172,13 +188,19 @@ int main(int argc, char *argv[])
 
 	// step 2: EAP-TLS PAP test
 	printf("<a id=pap><h2>Testing EAP-TLS PAP</h2></a>");
-	sprintf(filename, "/dev/shm/radcfg.%d.conf", getpid());
-	sprintf(filename_out, "/dev/shm/radtest.%d.out", getpid());
 
-	// step 2.1: write config file
-	fp = fopen(filename, "w");
+	// step 2.1: create and write config file
+	snprintf(filename, sizeof(filename), "/dev/shm/radcfg.XXXXXX");
+	{
+		int fd = mkstemp(filename);
+		if (fd == -1) {
+			printf("create config file error");
+			exit(0);
+		}
+		fp = fdopen(fd, "w");
+	}
 	if (fp == NULL) {
-		printf("open file %s error", filename);
+		printf("fdopen file %s error", filename);
 		exit(0);
 	}
 	fprintf(fp, "network={\n"
@@ -207,8 +229,17 @@ int main(int argc, char *argv[])
 	fclose(fp);
 	printf("%s", "</pre>\n");
 
-	// step 2.3: do the test
-	sprintf(buf, "/usr/local/bin/eapol_test -c %s -s %s -a %s 2>&1 > %s",
+	// step 2.3: create output file and do the test
+	snprintf(filename_out, sizeof(filename_out), "/dev/shm/radtest.XXXXXX");
+	{
+		int fd = mkstemp(filename_out);
+		if (fd == -1) {
+			printf("create output file error");
+			exit(0);
+		}
+		close(fd);
+	}
+	snprintf(buf, sizeof(buf), "/usr/local/bin/eapol_test -c %s -s %s -a %s 2>&1 > %s",
 		filename, CLIENT_SECRET, RADIUS_SERVER, filename_out);
 
 	ret = system(buf);
