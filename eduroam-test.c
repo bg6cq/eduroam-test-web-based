@@ -77,6 +77,20 @@ void check_pass(char *pass)
 	}
 }
 
+void print_html_escaped(const char *s)
+{
+	for (; *s; s++) {
+		switch (*s) {
+		case '&': printf("&amp;"); break;
+		case '<': printf("&lt;"); break;
+		case '>': printf("&gt;"); break;
+		case '"': printf("&quot;"); break;
+		case '\'': printf("&#x27;"); break;
+		default: putchar(*s);
+		}
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	dict *cgid;
@@ -207,7 +221,7 @@ int main(int argc, char *argv[])
 		exit(0);
 	}
 	while (fgets(buf, MAXLEN, fp))
-		printf("%s", buf);
+		print_html_escaped(buf);
 	fclose(fp);
 	printf("%s", "</pre>\n");
 	unlink(filename);
@@ -290,7 +304,7 @@ int main(int argc, char *argv[])
 		exit(0);
 	}
 	while (fgets(buf, MAXLEN, fp))
-		printf("%s", buf);
+		print_html_escaped(buf);
 	fclose(fp);
 	printf("%s", "</pre>\n");
 	unlink(filename);
